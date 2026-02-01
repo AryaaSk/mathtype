@@ -1,26 +1,276 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * MathNotebook Styles
+ *
+ * Ruled-paper styling for the full-screen math editor.
+ * Creates a notebook-like appearance with horizontal lines.
+ */
+
+/**
+ * Main container - flex column to avoid overflow
+ */
+.notebook-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #fafaf8;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/**
+ * Toolbar at top of notebook
+ */
+.notebook-toolbar {
+  display: flex;
+  gap: 24px;
+  padding: 12px 24px;
+  flex-shrink: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Instruction hint at top of notebook */
+.notebook-hint {
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  padding: 4px 0 8px;
+  user-select: none;
+}
+
+/* Full-screen ruled paper background */
+.ruled-paper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 0;
+  background-color: #fafaf8;
+  cursor: text;
+}
+
+/**
+ * Each math line container.
+ * Uses min-height to allow tall content (fractions, etc.) to expand.
+ */
+.math-line {
+  min-height: 40px;
+  padding: 4px 48px 4px 24px;
+  margin-left: 60px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/**
+ * MathLive field customizations.
+ * Removes default styling for seamless integration.
+ */
+math-field {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  width: 100%;
+  font-size: 20px;
+  min-height: 24px;
+  --caret-color: #333 !important;
+  --_caret-color: #333 !important;
+}
+
+/* Remove focus outline */
+math-field:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/**
+ * Hide MathLive UI elements for minimal appearance.
+ * Uses CSS parts API to target internal elements.
+ */
+
+/* Hide the virtual keyboard toggle button */
+math-field::part(virtual-keyboard-toggle) {
+  display: none !important;
+}
+
+/* Hide the menu toggle button */
+math-field::part(menu-toggle) {
+  display: none !important;
+}
+
+/* Style the content area */
+math-field::part(content) {
+  padding: 0;
+}
+
+/* Hide any prompts */
+math-field::part(prompt) {
+  display: none;
+}
+
+/**
+ * Subtle placeholder styling.
+ * Shows when a line is empty and focused.
+ */
+math-field::part(placeholder) {
+  color: #999;
+  font-style: italic;
+}
+
+/**
+ * Selection and caret styling.
+ */
+math-field .ML__caret {
+  background-color: #333;
+}
+
+/* Selection styling is handled via shadow DOM injection in MathLine.tsx */
+
+/**
+ * Text input styling (for text mode lines).
+ * Matches the math field appearance.
+ */
+.text-input,
+.auto-input {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  width: 100%;
+  font-size: 20px;
+  font-family: inherit;
+  line-height: 1.5;
+  min-height: 32px;
+  padding: 0;
+  color: #333;
+  -webkit-appearance: none;
+  appearance: none;
+  resize: none;
+  overflow: hidden;
+}
+
+.text-input::placeholder,
+.auto-input::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.text-input:focus,
+.auto-input:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+/**
+ * Mode markers - indicator showing line type (LaTeX or Text)
+ */
+.mode-marker {
+  position: absolute;
+  left: -36px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 500;
+  user-select: none;
+  width: 24px;
+  text-align: center;
+  border-radius: 3px;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.math-marker {
+  color: #7c3aed;
+  background: #f3e8ff;
+  cursor: pointer;
+}
+
+.text-marker {
+  color: #059669;
+  background: #d1fae5;
+  cursor: pointer;
+}
+
+.text-marker:hover {
+  opacity: 0.8;
+}
+
+
+.header-marker {
+  color: #2563eb;
+  background: #dbeafe;
+  cursor: pointer;
+}
+
+.header-line {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.header-input {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  width: 100%;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  color: #333;
+}
+
+.header-input:focus {
+  outline: none;
+}
+
+.image-marker {
+  color: #dc2626;
+  background: #fee2e2;
+  cursor: pointer;
+  font-size: 9px;
+}
+
+.image-line {
+  min-height: 60px;
+}
+
+.text-line .title-input,
+textarea.title-input {
+  text-align: center !important;
+  font-weight: 700 !important;
+  font-size: 28px !important;
+  line-height: 1.3 !important;
+}
+
+
+/**
+ * Responsive adjustments for mobile.
+ * Slightly smaller font and padding on small screens.
+ */
+@media (max-width: 640px) {
+  .math-line {
+    padding: 0 16px;
+  }
+
+  math-field {
+    font-size: 18px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/**
+ * Print styles.
+ * Clean output without ruled lines background.
+ */
+@media print {
+  .notebook-toolbar {
+    display: none;
+  }
+
+  .ruled-paper {
+    background-image: none;
+    background-color: white;
+  }
+
+  .math-line {
+    height: auto;
+    line-height: 1.5;
+    padding: 8px 0;
+  }
 }
