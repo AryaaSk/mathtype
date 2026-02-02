@@ -539,6 +539,84 @@ textarea.title-input {
   100% { background-position: -200% 0; }
 }
 
+/* Hint button - left of delete button */
+.hint-button {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ccc;
+}
+
+
+/* Hint display - similar to feedback but yellow/warm */
+.hint-display {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 4px;
+  border-left: 3px solid #f59e0b;
+  margin: 4px 24px 8px 76px;
+  background: #fffbeb;
+  color: #374151;
+  max-width: calc(100% - 100px);
+}
+
+.hint-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.hint-content {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Read-only math field for hint */
+.hint-content math-field {
+  font-size: 15px !important;
+  background: transparent !important;
+  pointer-events: none;
+  --caret-color: transparent !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  display: block !important;
+}
+
+.hint-dismiss {
+  padding: 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #bbb;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.hint-dismiss:hover {
+  color: #888;
+}
+
 /* Line wrapper for line + feedback */
 .line-wrapper {
   display: flex;

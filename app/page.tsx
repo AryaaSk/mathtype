@@ -84,7 +84,7 @@ export default async function LandingPage() {
               margin: '0 0 14px',
               fontFamily: 'ui-serif, Georgia, serif'
             }}>
-              A Jupyter notebook for mathematics
+              A notebook for maths that actually helps
             </h1>
             <p style={{
               fontSize: 15,
@@ -92,7 +92,7 @@ export default async function LandingPage() {
               lineHeight: 1.6,
               margin: '0 0 20px'
             }}>
-              Write LaTeX equations inline, mark problems, verify your reasoning step-by-step, and export your work.
+              Write LaTeX equations, work through problems step-by-step, and get feedback as you go. Stuck? Ask for a hint. Made an error? Catch it before moving on.
             </p>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <Link
@@ -150,6 +150,81 @@ export default async function LandingPage() {
                 <MathNotebook initialLines={demoLines} minimal />
               </MathLiveProvider>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section style={{
+        position: 'relative',
+        zIndex: 1,
+        borderTop: '1px solid #eee',
+        background: '#fafaf8'
+      }}>
+        <div style={{
+          maxWidth: 800,
+          margin: '0 auto',
+          padding: '40px 24px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: 32
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              margin: '0 auto 12px',
+              borderRadius: 10,
+              background: '#fef3c7',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18
+            }}>?</div>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: '0 0 6px' }}>
+              Hints when stuck
+            </h3>
+            <p style={{ fontSize: 13, color: '#888', margin: 0, lineHeight: 1.5 }}>
+              Get a gentle nudge in the right direction without spoiling the answer
+            </p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              margin: '0 auto 12px',
+              borderRadius: 10,
+              background: '#dcfce7',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18
+            }}>✓</div>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: '0 0 6px' }}>
+              Check your work
+            </h3>
+            <p style={{ fontSize: 13, color: '#888', margin: 0, lineHeight: 1.5 }}>
+              Verify each step is correct before moving on to the next one
+            </p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              margin: '0 auto 12px',
+              borderRadius: 10,
+              background: '#f3e8ff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18
+            }}>∑</div>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: '0 0 6px' }}>
+              Beautiful LaTeX
+            </h3>
+            <p style={{ fontSize: 13, color: '#888', margin: 0, lineHeight: 1.5 }}>
+              Write equations naturally with instant rendering as you type
+            </p>
           </div>
         </div>
       </section>

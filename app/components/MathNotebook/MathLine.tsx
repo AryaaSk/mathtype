@@ -29,6 +29,8 @@ export default function MathLine({
   isChecking = false,
   feedback = null,
   onDismissFeedback,
+  onGetHint,
+  isLoadingHint = false,
 }: LineProps) {
   const mathFieldRef = useRef<MathfieldElement | null>(null);
   // Store initial content - don't update math-field children after mount
@@ -423,6 +425,11 @@ export default function MathLine({
     onCheckReasoning(index);
   };
 
+  const handleHint = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onGetHint(index);
+  };
+
   const handleDismiss = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDismissFeedback?.(line.id);
@@ -456,12 +463,42 @@ export default function MathLine({
         ✕
       </button>
       {!line.isProblem && (
-        <button
-          className="check-button"
-          onClick={handleCheck}
-          disabled={isChecking}
-          title="Check reasoning up to here"
-        />
+        <>
+          <button
+            className="hint-button"
+            onClick={handleHint}
+            disabled={isLoadingHint}
+            title="Get a hint"
+            style={{
+              position: "absolute",
+              right: 30,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 20,
+              height: 20,
+              padding: 0,
+              border: "none",
+              background: "transparent",
+              cursor: isLoadingHint ? "wait" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#ccc",
+            }}
+            onMouseEnter={(e) => { if (!isLoadingHint) e.currentTarget.style.color = "#f59e0b"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#ccc"; }}
+          >
+            {isLoadingHint ? "..." : "?"}
+          </button>
+          <button
+            className="check-button"
+            onClick={handleCheck}
+            disabled={isChecking}
+            title="Check reasoning up to here"
+          />
+        </>
       )}
       {feedback && (
         <div className={`feedback-display ${feedback.status === "ok" ? "feedback-ok" : "feedback-issue"}`}>

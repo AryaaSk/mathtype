@@ -23,6 +23,10 @@ export default function HeaderLine({
   onNavigate,
   onDeleteLine,
   onToggleProblem,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onCheckReasoning,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onGetHint,
 }: LineProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 

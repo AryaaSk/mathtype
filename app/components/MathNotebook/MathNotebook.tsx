@@ -18,7 +18,7 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import type { MathLine, LineMode, LLMFeedback } from "./types";
+import type { MathLine, LineMode, LLMFeedback, HintResponse } from "./types";
 import MathLineComponent from "./MathLine";
 import TextLine from "./TextLine";
 import HeaderLine from "./HeaderLine";
@@ -72,6 +72,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
   const [lines, setLines] = useState<MathLine[]>(() => initialLines || createInitialLines());
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadingTemplate, setLoadingTemplate] = useState(!!templateSlug);
+  const [mathLiveReady, setMathLiveReady] = useState(false);
 
 
   const [focusState, setFocusState] = useState<{
@@ -85,6 +86,11 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
   );
   // Currently checking line ID
   const [checkingLineId, setCheckingLineId] = useState<string | null>(null);
+
+  // Hint state - maps lineId to hint string
+  const [hintMap, setHintMap] = useState<Map<string, string>>(new Map());
+  // Currently loading hint line ID
+  const [loadingHintLineId, setLoadingHintLineId] = useState<string | null>(null);
 
   // Drawing mode state - hidden for now, can be re-enabled later
   // const [isDrawMode, setIsDrawMode] = useState(false);
@@ -101,6 +107,8 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
   useEffect(() => {
     import("mathlive").then((module) => {
       module.MathfieldElement.fontsDirectory = "https://unpkg.com/mathlive/fonts/";
+      // Small delay to ensure MathLive is fully initialized
+      setTimeout(() => setMathLiveReady(true), 50);
     });
   }, []);
 
@@ -338,12 +346,13 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
     // Don't clear feedback yet - we'll do smart cleanup after getting result
 
     // Separate into problem and user lines
+    // Headers are excluded from user lines (they're just titles, not math work)
     const problemLines = relevantLines
       .filter((l) => l.isProblem)
       .map((l) => ({ mode: l.mode, content: l.content }));
 
     const userLines = relevantLines
-      .filter((l) => !l.isProblem)
+      .filter((l) => !l.isProblem && l.mode !== "header")
       .map((l) => ({ mode: l.mode, content: l.content, lineId: l.id }));
 
     if (userLines.length === 0) {
@@ -429,6 +438,64 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
   // Dismiss feedback for a line
   const handleDismissFeedback = useCallback((lineId: string) => {
     setFeedbackMap((prev) => {
+      const next = new Map(prev);
+      next.delete(lineId);
+      return next;
+    });
+  }, []);
+
+  // Get hint for a line
+  const handleGetHint = useCallback(async (atIndex: number) => {
+    const targetLine = lines[atIndex];
+    if (!targetLine) return;
+
+    setLoadingHintLineId(targetLine.id);
+
+    // Collect all lines up to and including this one
+    const relevantLines = lines.slice(0, atIndex + 1);
+
+    // Separate into problem and user lines
+    // Headers are excluded from user lines (they're just titles, not math work)
+    const problemLines = relevantLines
+      .filter((l) => l.isProblem)
+      .map((l) => ({ mode: l.mode, content: l.content }));
+
+    const userLines = relevantLines
+      .filter((l) => !l.isProblem && l.mode !== "header")
+      .map((l) => ({ mode: l.mode, content: l.content, lineId: l.id }));
+
+    try {
+      const response = await fetch("/api/hint", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problemLines, userLines }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        console.error("Get hint failed:", err.error);
+        setLoadingHintLineId(null);
+        return;
+      }
+
+      const data: HintResponse = await response.json();
+
+      // Store hint on the line
+      setHintMap((prev) => {
+        const next = new Map(prev);
+        next.set(targetLine.id, data.hint);
+        return next;
+      });
+    } catch (error) {
+      console.error("Get hint error:", error);
+    } finally {
+      setLoadingHintLineId(null);
+    }
+  }, [lines]);
+
+  // Dismiss hint for a line
+  const handleDismissHint = useCallback((lineId: string) => {
+    setHintMap((prev) => {
       const next = new Map(prev);
       next.delete(lineId);
       return next;
@@ -628,6 +695,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
   // Render appropriate line component based on mode
   const renderLine = (line: MathLine, index: number) => {
     const feedback = feedbackMap.get(line.id) || null;
+    const hint = hintMap.get(line.id) || null;
     const commonProps = {
       line,
       index,
@@ -644,6 +712,10 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
       isChecking: checkingLineId === line.id,
       feedback: null, // Feedback rendered separately below
       onDismissFeedback: handleDismissFeedback,
+      onGetHint: handleGetHint,
+      isLoadingHint: loadingHintLineId === line.id,
+      hint: null, // Hint rendered separately below
+      onDismissHint: handleDismissHint,
     };
 
     let lineComponent;
@@ -669,14 +741,46 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
             <button className="feedback-dismiss" onClick={() => handleDismissFeedback(line.id)}>×</button>
           </div>
         )}
+        {hint && (
+          <div className="hint-display" style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 10,
+            padding: "10px 14px",
+            fontSize: 14,
+            borderRadius: 4,
+            borderLeft: "3px solid #f59e0b",
+            margin: "4px 24px 8px 76px",
+            background: "#fffbeb",
+            color: "#374151",
+          }}>
+            <span style={{ fontSize: 14, flexShrink: 0, marginTop: 2 }}>💡</span>
+            <div style={{ flex: 1, minWidth: 0, overflow: "auto" }}>
+              <math-field read-only style={{ fontSize: 15 }}>{hint}</math-field>
+            </div>
+            <button
+              onClick={() => handleDismissHint(line.id)}
+              style={{
+                padding: 4,
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+                fontSize: 16,
+                color: "#bbb",
+                flexShrink: 0,
+                lineHeight: 1,
+              }}
+            >×</button>
+          </div>
+        )}
       </div>
     );
   };
 
-  if (loadingTemplate) {
+  if (loadingTemplate || !mathLiveReady) {
     return (
       <div className="min-h-screen bg-[#fafaf8] flex items-center justify-center">
-        <p className="text-gray-400">Loading template...</p>
+        <p className="text-gray-400">{loadingTemplate ? "Loading template..." : "Loading..."}</p>
       </div>
     );
   }
@@ -734,7 +838,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
         className="ruled-paper"
         onClick={handleContainerClick}
       >
-        <div className="notebook-hint">Click marker to cycle modes · Tab for math · Shift+Enter for line break</div>
+        <div className="notebook-hint">Type LaTeX directly · Tab to switch modes · Shift+Enter for line break · ? for hints</div>
         {lines.map((line, index) => renderLine(line, index))}
       </div>
     </div>

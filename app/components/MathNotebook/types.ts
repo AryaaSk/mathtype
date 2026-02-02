@@ -38,6 +38,14 @@ export interface LLMFeedback {
 }
 
 /**
+ * Hint response structure from the hint API.
+ */
+export interface HintResponse {
+  /** LaTeX formatted hint */
+  hint: string;
+}
+
+/**
  * Common props for line components.
  */
 export interface LineProps {
@@ -71,6 +79,14 @@ export interface LineProps {
   feedback?: LLMFeedback | null;
   /** Callback to dismiss feedback */
   onDismissFeedback?: (lineId: string) => void;
+  /** Callback to get a hint for this line */
+  onGetHint: (index: number) => void;
+  /** Whether this line is currently loading a hint */
+  isLoadingHint?: boolean;
+  /** Hint for this line, if any */
+  hint?: string | null;
+  /** Callback to dismiss hint */
+  onDismissHint?: (lineId: string) => void;
 }
 
 export type { MathfieldElement };
