@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "title": "Calculus: Derivatives",
+    "description": "Practice finding derivatives using power rule, product rule, and chain rule",
+    "category": "Calculus",
+    "difficulty": "Advanced"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Derivatives Practice",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t0",
+      "content": "Find the derivative of each function. Show your work.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t1",
+      "content": "Problem 1: Power Rule",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "f(x) = 3x^4 - 2x^2 + 5x - 7",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t2",
+      "content": "Problem 2: Product Rule",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "f(x) = (x^2 + 1)(x^3 - x)",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t3",
+      "content": "Problem 3: Chain Rule",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "f(x) = (2x + 1)^5",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "Problem 4: Combined Rules",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m4",
+      "content": "f(x) = x \\cdot \\sin(x^2)",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w4",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

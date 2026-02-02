@@ -22,6 +22,11 @@ export default function TextLine({
   onEnterPress,
   onNavigate,
   onDeleteLine,
+  onToggleProblem,
+  onCheckReasoning,
+  isChecking = false,
+  feedback = null,
+  onDismissFeedback,
 }: LineProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -135,8 +140,34 @@ export default function TextLine({
     onModeChange(index, "header");
   };
 
+  const handleProblemToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleProblem(index);
+  };
+
+  const handleCheck = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCheckReasoning(index);
+  };
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDismissFeedback?.(line.id);
+  };
+
   return (
-    <div className="math-line text-line">
+    <div
+      className={`math-line text-line ${line.isProblem ? "is-problem" : ""} ${isChecking ? "is-checking" : ""}`}
+      style={{ marginLeft: 76 }}
+    >
+      <span
+        className={`problem-toggle ${line.isProblem ? "is-problem" : "is-work"}`}
+        onClick={handleProblemToggle}
+        title={line.isProblem ? "Problem context (click to mark as work)" : "Click to mark as problem context"}
+        style={{ left: -60 }}
+      >
+        {line.isProblem ? "P" : ""}
+      </span>
       <span
         className="mode-marker text-marker"
         onClick={handleMarkerClick}
@@ -152,6 +183,30 @@ export default function TextLine({
         className="text-input"
         rows={1}
       />
+      <button
+        className="delete-line-button"
+        onClick={(e) => { e.stopPropagation(); onDeleteLine(index); }}
+        title="Delete line"
+      >
+        ✕
+      </button>
+      {!line.isProblem && (
+        <button
+          className="check-button"
+          onClick={handleCheck}
+          disabled={isChecking}
+          title="Check reasoning up to here"
+        />
+      )}
+      {feedback && (
+        <div className={`feedback-display ${feedback.status === "ok" ? "feedback-ok" : "feedback-issue"}`}>
+          <span className="feedback-icon">{feedback.status === "ok" ? "✓" : "✗"}</span>
+          <div className="feedback-content">
+            <math-field read-only>{feedback.latex || (feedback.status === "ok" ? "\\text{All steps valid.}" : "\\text{Error in reasoning.}")}</math-field>
+          </div>
+          <button className="feedback-dismiss" onClick={handleDismiss}>×</button>
+        </div>
+      )}
     </div>
   );
 }

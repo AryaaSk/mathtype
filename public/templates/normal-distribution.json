@@ -1,0 +1,112 @@
+{
+  "meta": {
+    "title": "Normal Distribution",
+    "description": "Calculate probabilities using the normal distribution and standardise to Z-scores",
+    "category": "Statistics",
+    "difficulty": "Advanced"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Normal Distribution",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Key Formulas:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "X \\sim N(\\mu, \\sigma^2)",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "Z = \\frac{X - \\mu}{\\sigma} \\sim N(0, 1)",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Properties: 68% within 1 SD, 95% within 2 SD, 99.7% within 3 SD of the mean",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t3",
+      "content": "Problem 1: Standardising",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t4",
+      "content": "Heights of adults are normally distributed with mean 170cm and standard deviation 8cm. Find the probability that a randomly selected adult is taller than 182cm.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "X \\sim N(170, 8^2), \\quad P(X > 182) = ?",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t5",
+      "content": "Problem 2: Finding Values",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t6",
+      "content": "Exam scores are normally distributed with mean 65 and standard deviation 12. What score is needed to be in the top 10%?",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "X \\sim N(65, 12^2), \\quad P(X > x) = 0.10",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t7",
+      "content": "Problem 3: Finding Unknown Parameters",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t8",
+      "content": "The weights of apples are normally distributed. 15% weigh less than 90g and 20% weigh more than 130g. Find the mean and standard deviation.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "P(X < 90) = 0.15, \\quad P(X > 130) = 0.20",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

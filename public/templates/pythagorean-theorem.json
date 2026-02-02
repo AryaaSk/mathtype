@@ -1,0 +1,70 @@
+{
+  "meta": {
+    "title": "Pythagorean Theorem",
+    "description": "Explore the fundamental relationship between the sides of a right triangle",
+    "category": "Geometry",
+    "difficulty": "Beginner"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Pythagorean Theorem",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "For a right triangle with legs a and b, and hypotenuse c:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "a^2 + b^2 = c^2",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Find the value of x in the triangle below:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "img1",
+      "content": "data:image/webp;base64,UklGRjIEAABXRUJQVlA4TCUEAAAvTAJRALegoJGkZt8LHRQgAZd46sULNhREspUcXVwakIDENCCBSxfQRJKaNQMVCvAvgQriJfMf4P8fDy7vcAfwnAacUWms+qGgcoIgKRDJnqQJqhlZigAGJEiS5EhR9mqNWvb/b2WmFnoG64rOExPRf0hsJCmSomdvvXhUx3zP4qW1+N/if4v/Lf73RyZJXto5CZKVoCfLTElmSjJTkoP65uoc1DfwT9/CPf0A3ulHcE4/hG/6MVxTBRxU0VM4pjoYplrYpXqYpSlglaaBUZoKNmk6mKQpYZGmhUGaGvZoepijOWCN5oExmgu2aD6YojlhieaFIZobdmh+mCEXIQygixDGz0UIw+cihNFzEcLguQhh7FyEMHS/Dw6q6Cm6vl+Jns9FCNPmIoRZcxHCpLkIYc5chDBlLkKYMRchTJiLEObLRQjT5SKE2XIRwmS5CGGuXIQwVS5CmCkXIUyUixDmyUUI0+QihFlyEcIkuQhhjlyEMEUuQpghFyFMUBPQkzUe11c9Nl+9S5/rLqj1uEv7Uj6k06p0Qa3H7U2f6/PL4C6o/dtd2r0Nu06oLZhrT8MFeqH242O064aaj7skbfuh1uMuHd50WnVDjcf5RafVh7TthtqO88twietrR1ys7ZC0H7/ffd8jNf0dFL1Q29BhtQ7dVfvQWbUQXVUb0VG1Et1UO9FJtRRdVFvRQbUW3VN70Tm1GF1Tm9ExGQXXV0mnVWU+wV2j9djU5RKMP412+Hq2Y102wfgT/O/VB1yC21v8qsjK2g/Shy8v0r6yDDaBvhaNLlhXCsDc53r09Ud1JQHIbcMX21aVBgj32ITbV5VLcHubKJvgQ9pPccAmOL8Me+/StlTlE9w1WsdSl1Fwff1qWyqzCqb4ME5S4F5aoF5iYF5qIF5y4F16oF2CYF2KIF2S4FyaoFyiYFyqIFyy4Fu6oFvCYFvKIFvS4FracFBFT8G0zIG03AG07IGz/AEzAkAZA4CMAjDGARAjAYSxAMBoAF88AC8iQBcTgIsKsMUF0CIDZLEBsOgAV3wAK0JAFSOAihIwxQmQIgVEsQKgaMFBFT0FnICBTchAJmjgEjZQCRyYhA5Eggce4QONAIJFCEEiiOAQRlAIJBiEEgSCifxzEVS12AFJ7AAkesARP8CIIDK+WMUblwwBIorAEEdAiCQQxBIAogkHVfQUyQcUuYcUmQcVeYcVWQcWOYcWGQcX+YYX2QYYuYYYmQYZeX66sF2gXlhmSn81ZaWteGkt/rcY3bsk7U3U7U2jdVpZqA/pODrr1kTHPTaj/0nA0UvtLdQ9HHhsios2abRz0Rml4Zw+ulh598M25z+mOPzbSwzU9XW4vvF/M9VCWelGeY9H70ux0F78mKCPrmqwl9bif4v/Lf63+N/if4v/Lf63+N/if66pAAA=",
+      "mode": "image",
+      "isProblem": true
+    },
+    {
+      "id": "t3",
+      "content": "Solution:",
+      "mode": "text",
+      "isProblem": false
+    },
+    {
+      "id": "m2",
+      "content": "6^2 + 8^2 = x^2",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "m3",
+      "content": "36 + 64 = x^2",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "m4",
+      "content": "x = \\sqrt{100} = 10",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "Click the ▶ button on a line to mark your work upto a given line!",
+      "mode": "text",
+      "isProblem": false
+    }
+  ]
+}

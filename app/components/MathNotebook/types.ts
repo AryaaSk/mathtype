@@ -21,6 +21,20 @@ export interface MathLine {
   content: string;
   /** Mode of the line - determines how it's rendered */
   mode: LineMode;
+  /** Whether this line is problem context (true) or user reasoning (false) */
+  isProblem: boolean;
+}
+
+/**
+ * LLM feedback response structure.
+ */
+export interface LLMFeedback {
+  /** "ok" if all steps valid, "issue" if a problem was found */
+  status: "ok" | "issue";
+  /** 1-indexed position of the problematic user step (only if status === "issue") */
+  stepIndex?: number;
+  /** LaTeX formatted feedback message */
+  latex?: string;
 }
 
 /**
@@ -47,6 +61,42 @@ export interface LineProps {
   onMultiLinePaste: (index: number, lines: string[]) => void;
   /** Callback when backspace is pressed on empty line */
   onDeleteLine: (index: number) => void;
+  /** Callback to toggle isProblem status */
+  onToggleProblem: (index: number) => void;
+  /** Callback to check reasoning up to this line */
+  onCheckReasoning: (index: number) => void;
+  /** Whether this line is currently being checked */
+  isChecking?: boolean;
+  /** Feedback for this line, if any */
+  feedback?: LLMFeedback | null;
+  /** Callback to dismiss feedback */
+  onDismissFeedback?: (lineId: string) => void;
 }
 
 export type { MathfieldElement };
+
+/**
+ * Canvas overlay types for drawing/marking functionality.
+ */
+
+/** A single point in a drawing stroke */
+export interface StrokePoint {
+  x: number;
+  y: number;
+}
+
+/** A complete drawing stroke */
+export interface DrawingStroke {
+  id: string;
+  color: string;
+  width: number;
+  points: StrokePoint[];
+}
+
+/** Canvas overlay data */
+export interface CanvasData {
+  strokes: DrawingStroke[];
+}
+
+/** Drawing tool types */
+export type DrawingTool = "pen" | "eraser";

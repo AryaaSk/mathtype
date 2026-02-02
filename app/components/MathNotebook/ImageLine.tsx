@@ -20,6 +20,11 @@ export default function ImageLine({
   onModeChange,
   onEnterPress,
   onDeleteLine,
+  onToggleProblem,
+  onCheckReasoning,
+  isChecking = false,
+  feedback = null,
+  onDismissFeedback,
 }: LineProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -102,8 +107,36 @@ export default function ImageLine({
     }
   };
 
+  const handleProblemToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleProblem(index);
+  };
+
+  const handleCheck = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCheckReasoning(index);
+  };
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDismissFeedback?.(line.id);
+  };
+
   return (
-    <div className="math-line image-line" tabIndex={0} onKeyDown={handleKeyDown}>
+    <div
+      className={`math-line image-line ${line.isProblem ? "is-problem" : ""} ${isChecking ? "is-checking" : ""}`}
+      style={{ marginLeft: 76 }}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+    >
+      <span
+        className={`problem-toggle ${line.isProblem ? "is-problem" : "is-work"}`}
+        onClick={handleProblemToggle}
+        title={line.isProblem ? "Problem context (click to mark as work)" : "Click to mark as problem context"}
+        style={{ left: -60 }}
+      >
+        {line.isProblem ? "P" : ""}
+      </span>
       <span
         className="mode-marker image-marker"
         onClick={handleMarkerClick}
@@ -146,22 +179,31 @@ export default function ImageLine({
             {isDragging ? "Drop image here" : "Click or drop image"}
           </div>
         )}
-        <button
-          onClick={() => onDeleteLine(index)}
-          style={{
-            padding: "4px 8px",
-            border: "none",
-            background: "none",
-            color: "#dc2626",
-            cursor: "pointer",
-            fontSize: "14px",
-            marginLeft: "auto",
-          }}
-          title="Delete line"
-        >
-          ✕
-        </button>
       </div>
+      <button
+        className="delete-line-button"
+        onClick={(e) => { e.stopPropagation(); onDeleteLine(index); }}
+        title="Delete line"
+      >
+        ✕
+      </button>
+      {!line.isProblem && (
+        <button
+          className="check-button"
+          onClick={handleCheck}
+          disabled={isChecking}
+          title="Check reasoning up to here"
+        />
+      )}
+      {feedback && (
+        <div className={`feedback-display ${feedback.status === "ok" ? "feedback-ok" : "feedback-issue"}`}>
+          <span className="feedback-icon">{feedback.status === "ok" ? "✓" : "✗"}</span>
+          <div className="feedback-content">
+            <math-field read-only>{feedback.latex || (feedback.status === "ok" ? "\\text{All steps valid.}" : "\\text{Error in reasoning.}")}</math-field>
+          </div>
+          <button className="feedback-dismiss" onClick={handleDismiss}>×</button>
+        </div>
+      )}
     </div>
   );
 }

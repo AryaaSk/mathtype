@@ -24,10 +24,25 @@ export default function MathLine({
   onNavigate,
   onMultiLinePaste,
   onDeleteLine,
+  onToggleProblem,
+  onCheckReasoning,
+  isChecking = false,
+  feedback = null,
+  onDismissFeedback,
 }: LineProps) {
   const mathFieldRef = useRef<MathfieldElement | null>(null);
   // Store initial content - don't update math-field children after mount
   const initialContent = useRef(line.content);
+  // Track if component is mounted to avoid operations on unmounted component
+  const isMountedRef = useRef(true);
+
+  // Set mounted flag
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   /**
    * Configure the MathLive field after it mounts.
@@ -46,7 +61,8 @@ export default function MathLine({
     };
 
     // Configure MathLive options
-    mf.mathVirtualKeyboardPolicy = "manual";
+    // "auto" shows virtual keyboard on touch devices
+    mf.mathVirtualKeyboardPolicy = "auto";
     mf.smartFence = true;
     mf.smartSuperscript = true;
     mf.smartMode = false;
@@ -143,33 +159,50 @@ export default function MathLine({
         return;
       }
 
+      // Escape - exit any nested mode (like \text{}) back to math
+      if (ev.key === "Escape") {
+        ev.preventDefault();
+        try {
+          mf.executeCommand("moveToMathfieldEnd");
+        } catch {
+          // Ignore - MathLive may be in an inconsistent state
+        }
+        return;
+      }
+
       // Shift+Enter - add line break within math field (multi-line)
       if (ev.key === "Enter" && ev.shiftKey) {
         ev.preventDefault();
-        const value = mf.value;
+        try {
+          const value = mf.value;
 
-        // If already in a multi-line environment, use MathLive's built-in row command
-        if (value.includes("\\begin{")) {
-          mf.executeCommand("addRowAfter");
+          // If already in a multi-line environment, insert \\ at cursor position
+          const envMatch = value.match(/\\begin\{(gather|align)\}([\s\S]*?)\\end\{\1\}/);
+          if (envMatch) {
+            // Insert \\ at the current cursor position
+            mf.insert("\\\\");
+            onChange(index, mf.value);
+            return;
+          }
+
+          // Not in environment yet - split at cursor and wrap in gather
+          const cursorPos = mf.selection?.ranges?.[0]?.[0] ?? 0;
+          const lastOffset = mf.lastOffset;
+
+          // Get content before and after cursor
+          mf.selection = { ranges: [[cursorPos, lastOffset]] };
+          const afterCursor = mf.getValue(mf.selection, "latex").replace(/\\,/g, "");
+
+          mf.selection = { ranges: [[0, cursorPos]] };
+          const beforeCursor = mf.getValue(mf.selection, "latex").replace(/\\,/g, "");
+
+          // Wrap in gather environment with line break at cursor position
+          const newValue = `\\begin{gather}${beforeCursor}\\\\${afterCursor}\\end{gather}`;
+          mf.value = newValue;
           onChange(index, mf.value);
-          return;
+        } catch {
+          // Ignore - MathLive may be in an inconsistent state
         }
-
-        // Not in environment yet - split at cursor and wrap in gather
-        const cursorPos = mf.selection?.ranges?.[0]?.[0] ?? 0;
-        const lastOffset = mf.lastOffset;
-
-        // Get content before and after cursor
-        mf.selection = { ranges: [[cursorPos, lastOffset]] };
-        const afterCursor = mf.getValue(mf.selection, "latex").replace(/\\,/g, "");
-
-        mf.selection = { ranges: [[0, cursorPos]] };
-        const beforeCursor = mf.getValue(mf.selection, "latex").replace(/\\,/g, "");
-
-        // Wrap in gather environment with line break at cursor position
-        const newValue = `\\begin{gather}${beforeCursor}\\\\${afterCursor}\\end{gather}`;
-        mf.value = newValue;
-        onChange(index, mf.value);
         return;
       }
 
@@ -335,24 +368,32 @@ export default function MathLine({
       const mf = mathFieldRef.current;
 
       const positionCursor = () => {
-        if (focusPosition === "end") {
-          mf.executeCommand("moveToMathfieldEnd");
-        } else {
-          mf.executeCommand("moveToMathfieldStart");
+        if (!isMountedRef.current) return;
+        try {
+          if (focusPosition === "end") {
+            mf.executeCommand("moveToMathfieldEnd");
+          } else {
+            mf.executeCommand("moveToMathfieldStart");
+          }
+        } catch {
+          // Ignore - component may be unmounting
         }
       };
 
       // Focus and position cursor with small delay to ensure MathLive is ready
       const attemptFocus = () => {
+        if (!isMountedRef.current) return;
         try {
           mf.focus();
           // Small delay before positioning to ensure field is ready
           requestAnimationFrame(() => {
+            if (!isMountedRef.current) return;
             positionCursor();
           });
         } catch {
           // Retry after short delay
           setTimeout(() => {
+            if (!isMountedRef.current) return;
             try {
               mf.focus();
               positionCursor();
@@ -376,8 +417,34 @@ export default function MathLine({
     onModeChange(index, "text");
   };
 
+  const handleProblemToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleProblem(index);
+  };
+
+  const handleCheck = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCheckReasoning(index);
+  };
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDismissFeedback?.(line.id);
+  };
+
   return (
-    <div className="math-line">
+    <div
+      className={`math-line ${line.isProblem ? "is-problem" : ""} ${isChecking ? "is-checking" : ""}`}
+      style={{ marginLeft: 76 }}
+    >
+      <span
+        className={`problem-toggle ${line.isProblem ? "is-problem" : "is-work"}`}
+        onClick={handleProblemToggle}
+        title={line.isProblem ? "Problem context (click to mark as work)" : "Click to mark as problem context"}
+        style={{ left: -60 }}
+      >
+        {line.isProblem ? "P" : ""}
+      </span>
       <span
         className="mode-marker math-marker"
         onClick={handleMarkerClick}
@@ -385,6 +452,30 @@ export default function MathLine({
         style={{ cursor: "pointer" }}
       >∑</span>
       <math-field ref={setRef}>{initialContent.current}</math-field>
+      <button
+        className="delete-line-button"
+        onClick={(e) => { e.stopPropagation(); onDeleteLine(index); }}
+        title="Delete line"
+      >
+        ✕
+      </button>
+      {!line.isProblem && (
+        <button
+          className="check-button"
+          onClick={handleCheck}
+          disabled={isChecking}
+          title="Check reasoning up to here"
+        />
+      )}
+      {feedback && (
+        <div className={`feedback-display ${feedback.status === "ok" ? "feedback-ok" : "feedback-issue"}`}>
+          <span className="feedback-icon">{feedback.status === "ok" ? "✓" : "✗"}</span>
+          <div className="feedback-content">
+            <math-field read-only>{feedback.latex || (feedback.status === "ok" ? "\\text{All steps valid.}" : "\\text{Error in reasoning.}")}</math-field>
+          </div>
+          <button className="feedback-dismiss" onClick={handleDismiss}>×</button>
+        </div>
+      )}
     </div>
   );
 }

@@ -18,15 +18,16 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import type { MathLine, LineMode } from "./types";
+import type { MathLine, LineMode, LLMFeedback } from "./types";
 import MathLineComponent from "./MathLine";
 import TextLine from "./TextLine";
 import HeaderLine from "./HeaderLine";
 import ImageLine from "./ImageLine";
+// Canvas overlay hidden for now - can be re-enabled later
+// import type { CanvasData, DrawingStroke, DrawingTool } from "./types";
+// import CanvasOverlay from "./CanvasOverlay";
 
-// Import MathLive and configure fonts
-import { MathfieldElement } from "mathlive";
-MathfieldElement.fontsDirectory = "https://unpkg.com/mathlive/fonts/";
+// MathLive fonts are configured on first render via useEffect below
 
 function generateId(): string {
   return crypto.randomUUID();
@@ -41,54 +42,128 @@ function createInitialLines(): MathLine[] {
       id: generateId(),
       content: "My Math Notes",
       mode: "header" as LineMode,
+      isProblem: false,
     },
     {
       id: generateId(),
       content: "Here is a note",
       mode: "text" as LineMode,
+      isProblem: false,
     },
     {
       id: generateId(),
       content: "\\begin{gather}x=5\\\\y=3\\\\x+y=8\\end{gather}",
       mode: "math" as LineMode,
+      isProblem: false,
     },
   ];
 }
 
-export default function MathNotebook() {
+interface MathNotebookProps {
+  templateSlug?: string | null;
+  /** Initial lines to populate (skips localStorage) */
+  initialLines?: MathLine[];
+  /** Minimal mode - no toolbar, no localStorage, contained height */
+  minimal?: boolean;
+}
+
+export default function MathNotebook({ templateSlug, initialLines, minimal = false }: MathNotebookProps = {}) {
   // Start with initial lines, will load from localStorage if available
-  const [lines, setLines] = useState<MathLine[]>(() => createInitialLines());
+  const [lines, setLines] = useState<MathLine[]>(() => initialLines || createInitialLines());
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loadingTemplate, setLoadingTemplate] = useState(!!templateSlug);
 
   const [focusState, setFocusState] = useState<{
     index: number;
     position: "start" | "end";
   } | null>(null);
 
+  // Feedback state - maps lineId to feedback
+  const [feedbackMap, setFeedbackMap] = useState<Map<string, LLMFeedback>>(
+    new Map()
+  );
+  // Currently checking line ID
+  const [checkingLineId, setCheckingLineId] = useState<string | null>(null);
+
+  // Drawing mode state - hidden for now, can be re-enabled later
+  // const [isDrawMode, setIsDrawMode] = useState(false);
+  // const [currentTool, setCurrentTool] = useState<DrawingTool>("pen");
+  // const [currentColor, setCurrentColor] = useState("#ef4444");
+  // const [strokeWidth] = useState(3);
+  // const [canvasData, setCanvasData] = useState<CanvasData>({ strokes: [] });
+  // const [contentHeight, setContentHeight] = useState(0);
+
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Load from localStorage on mount
+  // Configure MathLive fonts on mount (client-side only)
   useEffect(() => {
+    import("mathlive").then((module) => {
+      module.MathfieldElement.fontsDirectory = "https://unpkg.com/mathlive/fonts/";
+    });
+  }, []);
+
+  // Load template if slug provided (runs before localStorage load)
+  useEffect(() => {
+    if (!templateSlug) {
+      setLoadingTemplate(false);
+      return;
+    }
+
+    setLoadingTemplate(true);
+    fetch(`/api/templates/${templateSlug}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Template not found");
+        return res.json();
+      })
+      .then((data) => {
+        if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
+          // Regenerate IDs to ensure uniqueness
+          const newLines = data.lines.map((line: MathLine) => ({
+            ...line,
+            id: generateId(),
+          }));
+          setLines(newLines);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load template:", err);
+        // Will fall back to localStorage or initial
+      })
+      .finally(() => {
+        setLoadingTemplate(false);
+        setIsLoaded(true);
+      });
+  }, [templateSlug]);
+
+  // Load from localStorage on mount (skip if template or initialLines is provided)
+  useEffect(() => {
+    if (templateSlug || initialLines || minimal) return; // Skip localStorage
+
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
         const data = JSON.parse(saved);
         if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
-          setLines(data.lines);
+          // Migrate legacy data: add isProblem if missing
+          const migratedLines = data.lines.map((line: MathLine) => ({
+            ...line,
+            isProblem: typeof line.isProblem === "boolean" ? line.isProblem : false,
+          }));
+          setLines(migratedLines);
         }
       } catch (e) {
         // Ignore invalid data
       }
     }
     setIsLoaded(true);
-  }, []);
+  }, [templateSlug, initialLines, minimal]);
 
-  // Save to localStorage whenever lines change (after initial load)
+  // Save to localStorage whenever lines change (after initial load, skip in minimal mode)
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && !minimal) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ lines }));
     }
-  }, [lines, isLoaded]);
+  }, [lines, isLoaded, minimal]);
 
   // Update line content
   const handleChange = useCallback((index: number, content: string) => {
@@ -134,16 +209,18 @@ export default function MathNotebook() {
     }
   }, [lines]);
 
-  // Create a new line below current (Shift+Enter)
+  // Create a new line below current (Enter)
   const handleEnterPress = useCallback((index: number) => {
     const currentMode = lines[index]?.mode || "math";
     // Header and image lines should create text lines
     const newMode = (currentMode === "header" || currentMode === "image") ? "text" : currentMode;
-    const newLine = {
+    const newLine: MathLine = {
       id: generateId(),
       content: "",
       mode: newMode,
+      isProblem: false,
     };
+
     setLines((prev) => [
       ...prev.slice(0, index + 1),
       newLine,
@@ -184,10 +261,11 @@ export default function MathNotebook() {
     // Inherit mode from the line being pasted into
     const currentMode = lines[index]?.mode || "math";
 
-    const newLines = pastedLines.map((content) => ({
+    const newLines: MathLine[] = pastedLines.map((content) => ({
       id: generateId(),
       content,
       mode: currentMode,
+      isProblem: false,
     }));
 
     setLines((prev) => [
@@ -206,7 +284,7 @@ export default function MathNotebook() {
   const handleDeleteLine = useCallback((index: number) => {
     if (lines.length === 1) {
       // Replace the only line with an empty text line
-      setLines([{ id: generateId(), content: "", mode: "text" as LineMode }]);
+      setLines([{ id: generateId(), content: "", mode: "text" as LineMode, isProblem: false }]);
       setFocusState({ index: 0, position: "start" });
       return;
     }
@@ -215,6 +293,131 @@ export default function MathNotebook() {
     setFocusState({ index: Math.max(0, index - 1), position: "end" });
   }, [lines.length]);
 
+  // Toggle isProblem status
+  const handleToggleProblem = useCallback((index: number) => {
+    setLines((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], isProblem: !next[index].isProblem };
+      return next;
+    });
+    // Clear feedback for this line since its role changed
+    const lineId = lines[index]?.id;
+    if (lineId) {
+      setFeedbackMap((prev) => {
+        const next = new Map(prev);
+        next.delete(lineId);
+        return next;
+      });
+    }
+  }, [lines]);
+
+  // Check reasoning up to a line
+  const handleCheckReasoning = useCallback(async (upToIndex: number) => {
+    const targetLine = lines[upToIndex];
+    if (!targetLine) return;
+
+    setCheckingLineId(targetLine.id);
+
+    // Collect all lines up to and including this one
+    const relevantLines = lines.slice(0, upToIndex + 1);
+
+    // Clear any existing feedback on lines up to this point
+    const lineIdsToClear = relevantLines.map((l) => l.id);
+    setFeedbackMap((prev) => {
+      const next = new Map(prev);
+      for (const id of lineIdsToClear) {
+        next.delete(id);
+      }
+      return next;
+    });
+
+    // Separate into problem and user lines
+    const problemLines = relevantLines
+      .filter((l) => l.isProblem)
+      .map((l) => ({ mode: l.mode, content: l.content }));
+
+    const userLines = relevantLines
+      .filter((l) => !l.isProblem)
+      .map((l) => ({ mode: l.mode, content: l.content, lineId: l.id }));
+
+    if (userLines.length === 0) {
+      setCheckingLineId(null);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/check-reasoning", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problemLines, userLines }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        console.error("Check reasoning failed:", err.error);
+        setCheckingLineId(null);
+        return;
+      }
+
+      const data: LLMFeedback = await response.json();
+
+      // Store feedback on the appropriate line(s) with smart cleanup
+      setFeedbackMap((prev) => {
+        const next = new Map(prev);
+
+        if (data.status === "ok") {
+          // Show "all valid" on the clicked line
+          next.set(targetLine.id, data);
+        } else if (data.status === "issue" && data.stepIndex) {
+          // Find the error line
+          const errorLineId = userLines[data.stepIndex - 1]?.lineId;
+
+          if (errorLineId) {
+            // Set detailed error on the problematic line
+            next.set(errorLineId, data);
+
+            // Find the index of the error line in the full lines array
+            const errorLineIndex = lines.findIndex(l => l.id === errorLineId);
+
+            // Sweep lines AFTER the error: remove any "ok" feedback
+            // (since validation after an error is meaningless)
+            if (errorLineIndex !== -1) {
+              for (let i = errorLineIndex + 1; i < lines.length; i++) {
+                const lineId = lines[i].id;
+                const existingFeedback = next.get(lineId);
+                if (existingFeedback?.status === "ok") {
+                  next.delete(lineId);
+                }
+              }
+            }
+          }
+
+          // If the error is on a different line than clicked, show "issue above" on clicked line
+          if (errorLineId && errorLineId !== targetLine.id) {
+            next.set(targetLine.id, {
+              status: "issue",
+              latex: "\\text{Issue found above ↑}"
+            });
+          }
+        }
+
+        return next;
+      });
+    } catch (error) {
+      console.error("Check reasoning error:", error);
+    } finally {
+      setCheckingLineId(null);
+    }
+  }, [lines]);
+
+  // Dismiss feedback for a line
+  const handleDismissFeedback = useCallback((lineId: string) => {
+    setFeedbackMap((prev) => {
+      const next = new Map(prev);
+      next.delete(lineId);
+      return next;
+    });
+  }, []);
 
   // Export as LaTeX
   const exportLatex = useCallback((): string => {
@@ -242,15 +445,56 @@ export default function MathNotebook() {
     return JSON.stringify({ lines }, null, 2);
   }, [lines]);
 
-  // Import notebook from JSON
+  // Import notebook from JSON with validation
   const importJSON = useCallback((json: string) => {
     try {
       const data = JSON.parse(json);
-      if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
-        setLines(data.lines);
+
+      // Validate structure
+      if (!data.lines || !Array.isArray(data.lines)) {
+        throw new Error("Invalid format: missing lines array");
       }
+
+      if (data.lines.length === 0) {
+        throw new Error("Invalid format: empty lines array");
+      }
+
+      // Validate each line
+      const validModes: LineMode[] = ["math", "text", "header", "image"];
+      const validatedLines: MathLine[] = [];
+
+      for (let i = 0; i < data.lines.length; i++) {
+        const line = data.lines[i];
+
+        // Required fields
+        if (typeof line.id !== "string" || !line.id) {
+          throw new Error(`Line ${i}: missing or invalid id`);
+        }
+        if (typeof line.content !== "string") {
+          throw new Error(`Line ${i}: missing or invalid content`);
+        }
+        if (!validModes.includes(line.mode)) {
+          throw new Error(`Line ${i}: invalid mode "${line.mode}"`);
+        }
+
+        // Optional isProblem field - default to false if missing
+        const isProblem = typeof line.isProblem === "boolean" ? line.isProblem : false;
+
+        validatedLines.push({
+          id: line.id,
+          content: line.content,
+          mode: line.mode,
+          isProblem,
+        });
+      }
+
+      // All valid - update state
+      setLines(validatedLines);
+      setFeedbackMap(new Map()); // Clear feedback on import
     } catch (e) {
-      console.error("Invalid JSON");
+      console.error("Import failed:", e);
+      alert("Invalid notebook file. Starting with empty notebook.");
+      setLines([{ id: generateId(), content: "", mode: "text", isProblem: false }]);
     }
   }, []);
 
@@ -261,10 +505,18 @@ export default function MathNotebook() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "notebook.json";
+
+    // Use header content as filename if first line is a header
+    let filename = "notebook";
+    if (lines[0]?.mode === "header" && lines[0].content.trim()) {
+      // Sanitize: remove characters that are problematic in filenames
+      filename = lines[0].content.trim().replace(/[/\\:*?"<>|]/g, "");
+    }
+    a.download = `${filename}.json`;
+
     a.click();
     URL.revokeObjectURL(url);
-  }, [exportJSON]);
+  }, [exportJSON, lines]);
 
   // Import button handler - opens file picker
   const handleImport = useCallback(() => {
@@ -286,13 +538,15 @@ export default function MathNotebook() {
   const handleNew = useCallback(() => {
     if (confirm("Clear notebook and start fresh?")) {
       setLines(createInitialLines());
+      setFeedbackMap(new Map());
     }
   }, []);
 
   // Clear button handler - removes everything
   const handleClear = useCallback(() => {
     if (confirm("Clear all content?")) {
-      setLines([{ id: generateId(), content: "", mode: "text" as LineMode }]);
+      setLines([{ id: generateId(), content: "", mode: "text" as LineMode, isProblem: false }]);
+      setFeedbackMap(new Map());
     }
   }, []);
 
@@ -357,6 +611,7 @@ export default function MathNotebook() {
 
   // Render appropriate line component based on mode
   const renderLine = (line: MathLine, index: number) => {
+    const feedback = feedbackMap.get(line.id) || null;
     const commonProps = {
       line,
       index,
@@ -368,23 +623,71 @@ export default function MathNotebook() {
       onNavigate: handleNavigate,
       onMultiLinePaste: handleMultiLinePaste,
       onDeleteLine: handleDeleteLine,
+      onToggleProblem: handleToggleProblem,
+      onCheckReasoning: handleCheckReasoning,
+      isChecking: checkingLineId === line.id,
+      feedback: null, // Feedback rendered separately below
+      onDismissFeedback: handleDismissFeedback,
     };
 
+    let lineComponent;
     if (line.mode === "text") {
-      return <TextLine key={line.id} {...commonProps} />;
+      lineComponent = <TextLine {...commonProps} />;
+    } else if (line.mode === "header") {
+      lineComponent = <HeaderLine {...commonProps} />;
+    } else if (line.mode === "image") {
+      lineComponent = <ImageLine {...commonProps} />;
+    } else {
+      lineComponent = <MathLineComponent {...commonProps} />;
     }
-    if (line.mode === "header") {
-      return <HeaderLine key={line.id} {...commonProps} />;
-    }
-    if (line.mode === "image") {
-      return <ImageLine key={line.id} {...commonProps} />;
-    }
-    return <MathLineComponent key={line.id} {...commonProps} />;
+
+    return (
+      <div key={line.id} className="line-wrapper">
+        {lineComponent}
+        {feedback && (
+          <div className={`feedback-display ${feedback.status === "ok" ? "feedback-ok" : "feedback-issue"}`}>
+            <span className="feedback-icon">{feedback.status === "ok" ? "✓" : "✗"}</span>
+            <div className="feedback-content">
+              <math-field read-only>{feedback.latex || (feedback.status === "ok" ? "\\text{All steps valid.}" : "\\text{Error in reasoning.}")}</math-field>
+            </div>
+            <button className="feedback-dismiss" onClick={() => handleDismissFeedback(line.id)}>×</button>
+          </div>
+        )}
+      </div>
+    );
   };
+
+  if (loadingTemplate) {
+    return (
+      <div className="min-h-screen bg-[#fafaf8] flex items-center justify-center">
+        <p className="text-gray-400">Loading template...</p>
+      </div>
+    );
+  }
+
+  if (minimal) {
+    return (
+      <div className="notebook-container notebook-minimal">
+        <div
+          ref={containerRef}
+          className="ruled-paper"
+          onClick={handleContainerClick}
+        >
+          {lines.map((line, index) => renderLine(line, index))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="notebook-container">
       <div className="notebook-toolbar">
+        <a
+          href="/"
+          style={{ padding: 0, border: "none", background: "none", cursor: "pointer", fontSize: "13px", color: "#999", textDecoration: "none" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "#666"; e.currentTarget.style.textDecoration = "underline"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "#999"; e.currentTarget.style.textDecoration = "none"; }}
+        >Home</a>
         <button
           onClick={handleNew}
           style={{ padding: 0, border: "none", background: "none", cursor: "pointer", fontSize: "13px", color: "#999" }}
@@ -415,7 +718,7 @@ export default function MathNotebook() {
         className="ruled-paper"
         onClick={handleContainerClick}
       >
-        <div className="notebook-hint">Click marker to cycle modes · Tab to toggle between text and math modes</div>
+        <div className="notebook-hint">Click marker to cycle modes · Tab for math · Shift+Enter for line break</div>
         {lines.map((line, index) => renderLine(line, index))}
       </div>
     </div>

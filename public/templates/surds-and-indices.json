@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "title": "Surds and Indices",
+    "description": "Simplify surds and apply index laws including negative and fractional indices",
+    "category": "Number",
+    "difficulty": "Intermediate"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Surds and Indices",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Key Index Laws:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "a^m \\times a^n = a^{m+n}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "a^m \\div a^n = a^{m-n}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0c",
+      "content": "(a^m)^n = a^{mn}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0d",
+      "content": "a^{-n} = \\frac{1}{a^n} \\quad \\text{and} \\quad a^{\\frac{1}{n}} = \\sqrt[n]{a}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Problem 1: Simplify using index laws",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "\\frac{x^5 \\times x^3}{x^2}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t3",
+      "content": "Problem 2: Evaluate without a calculator",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "27^{\\frac{2}{3}}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "Problem 3: Simplify the surd",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "\\sqrt{72}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t5",
+      "content": "Problem 4: Rationalise the denominator",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m4",
+      "content": "\\frac{6}{\\sqrt{3}}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w4",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t6",
+      "content": "Problem 5: Expand and simplify",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m5",
+      "content": "(3 + \\sqrt{5})(3 - \\sqrt{5})",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w5",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

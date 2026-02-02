@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "title": "Vectors",
+    "description": "Work with vectors including addition, subtraction, scalar multiplication and geometric proofs",
+    "category": "Geometry",
+    "difficulty": "Intermediate"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Vectors",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Key Vector Operations:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "\\vec{a} + \\vec{b} = \\begin{pmatrix} a_1 + b_1 \\\\ a_2 + b_2 \\end{pmatrix}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "k\\vec{a} = \\begin{pmatrix} ka_1 \\\\ ka_2 \\end{pmatrix}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0c",
+      "content": "|\\vec{a}| = \\sqrt{a_1^2 + a_2^2}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Problem 1: Given the following vectors:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "\\vec{a} = \\begin{pmatrix} 3 \\\\ 5 \\end{pmatrix}, \\quad \\vec{b} = \\begin{pmatrix} -2 \\\\ 4 \\end{pmatrix}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t3",
+      "content": "a) Find 2a + b",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "b) Find a - 3b",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t5",
+      "content": "Problem 2: Find the magnitude of vector c",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "\\vec{c} = \\begin{pmatrix} 6 \\\\ -8 \\end{pmatrix}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t6",
+      "content": "Problem 3: Vector Geometry",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t7",
+      "content": "In triangle OAB, OA = a and OB = b. M is the midpoint of AB. Express OM in terms of a and b.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t8",
+      "content": "Hint: OM = OA + AM",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w4",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

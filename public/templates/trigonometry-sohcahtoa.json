@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "title": "Trigonometry: SOHCAHTOA",
+    "description": "Use sine, cosine and tangent ratios to find missing sides and angles in right-angled triangles",
+    "category": "Geometry",
+    "difficulty": "Intermediate"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Trigonometry: SOHCAHTOA",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "The trigonometric ratios for a right-angled triangle:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "\\sin\\theta = \\frac{\\text{Opposite}}{\\text{Hypotenuse}}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "\\cos\\theta = \\frac{\\text{Adjacent}}{\\text{Hypotenuse}}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0c",
+      "content": "\\tan\\theta = \\frac{\\text{Opposite}}{\\text{Adjacent}}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Problem 1: Find the length of side x",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t3",
+      "content": "A right triangle has hypotenuse 12cm and angle 35 degrees. Find the opposite side.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "\\text{Hypotenuse} = 12\\text{cm}, \\quad \\theta = 35^\\circ, \\quad x = ?",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "Problem 2: Find the angle",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t5",
+      "content": "A right triangle has opposite side 7cm and adjacent side 10cm. Find the angle.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "\\text{Opposite} = 7\\text{cm}, \\quad \\text{Adjacent} = 10\\text{cm}, \\quad \\theta = ?",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t6",
+      "content": "Problem 3: Find the hypotenuse",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "\\text{Adjacent} = 8\\text{cm}, \\quad \\theta = 52^\\circ, \\quad \\text{Hypotenuse} = ?",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t7",
+      "content": "Problem 4: Angle of depression",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t8",
+      "content": "A lighthouse is 45m tall. A boat is 120m from the base. Find the angle of depression from the top of the lighthouse to the boat.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w4",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

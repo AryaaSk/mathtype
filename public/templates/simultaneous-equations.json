@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "title": "Simultaneous Equations",
+    "description": "Solve pairs of simultaneous equations using elimination and substitution methods",
+    "category": "Algebra",
+    "difficulty": "Intermediate"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Simultaneous Equations",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Worked Example (Elimination Method):",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "2x + 3y = 12",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "4x - 3y = 6",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Solution: Add the equations to eliminate y:",
+      "mode": "text",
+      "isProblem": false
+    },
+    {
+      "id": "m1s",
+      "content": "6x = 18 \\implies x = 3",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "m2s",
+      "content": "2(3) + 3y = 12 \\implies y = 2",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t3",
+      "content": "Problem 1: Solve by elimination",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1a",
+      "content": "3x + 2y = 19",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m1b",
+      "content": "x + 2y = 13",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "Problem 2: Solve by substitution",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2a",
+      "content": "y = 2x + 1",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m2b",
+      "content": "3x + 2y = 16",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t5",
+      "content": "Problem 3: One linear, one quadratic",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3a",
+      "content": "y = x + 3",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m3b",
+      "content": "x^2 + y^2 = 29",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

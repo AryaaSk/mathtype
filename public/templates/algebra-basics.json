@@ -1,0 +1,76 @@
+{
+  "meta": {
+    "title": "Algebra Basics",
+    "description": "Practice solving linear equations and basic algebraic manipulations",
+    "category": "Algebra",
+    "difficulty": "Beginner"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Algebra Basics Worksheet",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Solve for x in each equation. Show your work step by step.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Problem 1:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "2x + 5 = 13",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t3",
+      "content": "Problem 2:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "3(x - 4) = 15",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "Problem 3:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "\\frac{x}{2} + 7 = 10",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

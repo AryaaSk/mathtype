@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "title": "Probability Trees",
+    "description": "Use tree diagrams to calculate probabilities of combined events",
+    "category": "Statistics",
+    "difficulty": "Intermediate"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Probability Trees",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Key Rules:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "P(A \\text{ and } B) = P(A) \\times P(B)",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "P(A \\text{ or } B) = P(A) + P(B) \\quad \\text{(mutually exclusive)}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Problem 1: Independent Events (with replacement)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t3",
+      "content": "A bag contains 4 red balls and 6 blue balls. A ball is picked at random, replaced, then another ball is picked.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t4",
+      "content": "a) Find P(both red)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t5",
+      "content": "b) Find P(one of each colour)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t6",
+      "content": "Problem 2: Dependent Events (without replacement)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t7",
+      "content": "Same bag (4 red, 6 blue). This time the first ball is NOT replaced.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t8",
+      "content": "a) Find P(both blue)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t9",
+      "content": "b) Find P(at least one red)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w4",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t10",
+      "content": "Problem 3: Conditional Probability",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t11",
+      "content": "P(Rain) = 0.3. If it rains, P(late) = 0.6. If no rain, P(late) = 0.1. Find P(late).",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w5",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

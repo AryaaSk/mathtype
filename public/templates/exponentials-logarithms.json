@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "title": "Exponentials and Logarithms",
+    "description": "Work with exponential functions and logarithm laws, including solving equations",
+    "category": "Algebra",
+    "difficulty": "Advanced"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Exponentials and Logarithms",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Logarithm Laws:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "\\log_a(xy) = \\log_a x + \\log_a y",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "\\log_a\\left(\\frac{x}{y}\\right) = \\log_a x - \\log_a y",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0c",
+      "content": "\\log_a(x^n) = n\\log_a x",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0d",
+      "content": "a^x = b \\iff x = \\log_a b = \\frac{\\ln b}{\\ln a}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Problem 1: Simplify to a single logarithm",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "2\\log_3 x + \\log_3 4 - \\log_3 2",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t3",
+      "content": "Problem 2: Solve the exponential equation",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "5^{2x-1} = 8",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "Problem 3: Solve the logarithmic equation",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "\\log_2(x+3) + \\log_2(x-1) = 3",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t5",
+      "content": "Problem 4: Exponential Growth",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t6",
+      "content": "A population grows according to the model below. Find the time for the population to double.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m4",
+      "content": "P = 1000e^{0.05t}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w4",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

@@ -22,6 +22,7 @@ export default function HeaderLine({
   onEnterPress,
   onNavigate,
   onDeleteLine,
+  onToggleProblem,
 }: LineProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -102,8 +103,24 @@ export default function HeaderLine({
     onModeChange(index, "image");
   };
 
+  const handleProblemToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleProblem(index);
+  };
+
   return (
-    <div className="math-line header-line">
+    <div
+      className={`math-line header-line ${line.isProblem ? "is-problem" : ""}`}
+      style={{ marginLeft: 76 }}
+    >
+      <span
+        className={`problem-toggle ${line.isProblem ? "is-problem" : "is-work"}`}
+        onClick={handleProblemToggle}
+        title={line.isProblem ? "Problem context (click to mark as work)" : "Click to mark as problem context"}
+        style={{ left: -60 }}
+      >
+        {line.isProblem ? "P" : ""}
+      </span>
       <span
         className="mode-marker header-marker"
         onClick={handleMarkerClick}
@@ -119,6 +136,13 @@ export default function HeaderLine({
         onKeyDown={handleKeyDown}
         className="header-input"
       />
+      <button
+        className="delete-line-button"
+        onClick={(e) => { e.stopPropagation(); onDeleteLine(index); }}
+        title="Delete line"
+      >
+        ✕
+      </button>
     </div>
   );
 }

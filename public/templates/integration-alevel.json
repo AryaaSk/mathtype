@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "title": "Integration",
+    "description": "Practice integration techniques including substitution, parts, and definite integrals",
+    "category": "Calculus",
+    "difficulty": "Advanced"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Integration",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Key Integrals:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "\\int x^n \\, dx = \\frac{x^{n+1}}{n+1} + C \\quad (n \\neq -1)",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "\\int e^x \\, dx = e^x + C, \\quad \\int \\frac{1}{x} \\, dx = \\ln|x| + C",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0c",
+      "content": "\\int \\sin x \\, dx = -\\cos x + C, \\quad \\int \\cos x \\, dx = \\sin x + C",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Problem 1: Find the indefinite integral",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "\\int (3x^4 - 2x^{-2} + 5) \\, dx",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t3",
+      "content": "Problem 2: Integration by Substitution",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "\\int 2x(x^2 + 1)^4 \\, dx",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t4",
+      "content": "Hint: Let u = x^2 + 1",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t5",
+      "content": "Problem 3: Integration by Parts",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3a",
+      "content": "\\int u \\, dv = uv - \\int v \\, du",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "\\int x e^x \\, dx",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t6",
+      "content": "Problem 4: Definite Integral (Area)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m4",
+      "content": "\\int_0^2 (x^2 + 1) \\, dx",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w4",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "title": "Quadratic Equations",
+    "description": "Practice the quadratic formula and factoring quadratics",
+    "category": "Algebra",
+    "difficulty": "Intermediate"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Quadratic Equations Worksheet",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Recall the quadratic formula:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0",
+      "content": "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Problem 1: Solve using the quadratic formula",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "x^2 + 5x + 6 = 0",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t3",
+      "content": "Problem 2: Solve by factoring",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "x^2 - 9 = 0",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t4",
+      "content": "Problem 3: Find the discriminant and determine the nature of roots",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "2x^2 + 4x + 5 = 0",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "title": "Circle Theorems",
+    "description": "Apply circle theorems to find missing angles in circle diagrams",
+    "category": "Geometry",
+    "difficulty": "Intermediate"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "Circle Theorems",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "Key Circle Theorems:",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "1. Angle at centre = 2 x angle at circumference (same arc)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t3",
+      "content": "2. Angle in a semicircle = 90 degrees",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t4",
+      "content": "3. Angles in the same segment are equal",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t5",
+      "content": "4. Opposite angles of a cyclic quadrilateral sum to 180 degrees",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t6",
+      "content": "5. Tangent is perpendicular to the radius at point of contact",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t7",
+      "content": "Problem 1: Angle at centre theorem",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t8",
+      "content": "In a circle with centre O, the angle AOB at the centre is 124 degrees. Find the angle ACB at the circumference, where C is on the major arc.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "\\angle AOB = 124^\\circ, \\quad \\text{Find } \\angle ACB",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t9",
+      "content": "Problem 2: Cyclic quadrilateral",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t10",
+      "content": "ABCD is a cyclic quadrilateral. Angle A = 85 degrees and angle B = 72 degrees. Find angles C and D.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "\\angle A = 85^\\circ, \\quad \\angle B = 72^\\circ",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t11",
+      "content": "Problem 3: Tangent-radius theorem",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t12",
+      "content": "A tangent meets a circle at point P. The angle between the tangent and chord PQ is 35 degrees. Find the angle POQ at the centre.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "\\text{Angle between tangent and chord} = 35^\\circ",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}

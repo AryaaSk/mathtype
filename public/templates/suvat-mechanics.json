@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "title": "SUVAT Equations",
+    "description": "Apply the equations of motion for constant acceleration problems",
+    "category": "Mechanics",
+    "difficulty": "Advanced"
+  },
+  "lines": [
+    {
+      "id": "h1",
+      "content": "SUVAT Equations of Motion",
+      "mode": "header",
+      "isProblem": false
+    },
+    {
+      "id": "t1",
+      "content": "The five SUVAT equations (constant acceleration):",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m0a",
+      "content": "v = u + at",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0b",
+      "content": "s = ut + \\frac{1}{2}at^2",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0c",
+      "content": "s = vt - \\frac{1}{2}at^2",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0d",
+      "content": "v^2 = u^2 + 2as",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "m0e",
+      "content": "s = \\frac{(u+v)t}{2}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "t2",
+      "content": "Where: s = displacement, u = initial velocity, v = final velocity, a = acceleration, t = time",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t3",
+      "content": "Problem 1: Acceleration from rest",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t4",
+      "content": "A car accelerates from rest at 3 m/s^2 for 8 seconds. Find the final velocity and distance travelled.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m1",
+      "content": "u = 0, \\quad a = 3 \\text{ m/s}^2, \\quad t = 8 \\text{ s}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w1",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t5",
+      "content": "Problem 2: Vertical motion",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t6",
+      "content": "A ball is thrown vertically upward with velocity 20 m/s. Find the maximum height reached. (Take g = 9.8 m/s^2)",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m2",
+      "content": "u = 20 \\text{ m/s}, \\quad v = 0, \\quad a = -9.8 \\text{ m/s}^2",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w2",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    },
+    {
+      "id": "t7",
+      "content": "Problem 3: Deceleration",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "t8",
+      "content": "A train decelerates uniformly from 30 m/s to 10 m/s over a distance of 400m. Find the deceleration and time taken.",
+      "mode": "text",
+      "isProblem": true
+    },
+    {
+      "id": "m3",
+      "content": "u = 30 \\text{ m/s}, \\quad v = 10 \\text{ m/s}, \\quad s = 400 \\text{ m}",
+      "mode": "math",
+      "isProblem": true
+    },
+    {
+      "id": "w3",
+      "content": "",
+      "mode": "math",
+      "isProblem": false
+    }
+  ]
+}
