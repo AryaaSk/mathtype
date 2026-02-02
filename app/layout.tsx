@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Crimson_Pro, Source_Sans_3 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const crimsonPro = Crimson_Pro({
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${crimsonPro.variable} ${sourceSans.variable} antialiased`}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );

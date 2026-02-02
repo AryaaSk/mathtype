@@ -119,7 +119,7 @@ export default function MathLine({
         }
       }
 
-      // Backspace on empty - delete line and go to previous
+      // Backspace on empty - delete line (beforeinput fires BEFORE content changes)
       if (ev.inputType === "deleteContentBackward" && isEffectivelyEmpty(mf.value)) {
         ev.preventDefault();
         onDeleteLine(index);
@@ -260,11 +260,7 @@ export default function MathLine({
         navigator.clipboard.writeText(selectedLatex);
       }
 
-      // Backspace on empty field - delete line
-      if (ev.key === "Backspace" && isEffectivelyEmpty(mf.value)) {
-        ev.preventDefault();
-        onDeleteLine(index);
-      }
+      // Note: Backspace on empty is handled in beforeinput handler
     };
 
     // Handle paste with reliable clipboard access

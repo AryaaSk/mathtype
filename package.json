@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.6.1",
     "mathlive": "^0.108.2",
     "next": "16.1.6",
     "openai": "^6.17.0",

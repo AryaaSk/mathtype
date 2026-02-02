@@ -73,6 +73,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadingTemplate, setLoadingTemplate] = useState(!!templateSlug);
 
+
   const [focusState, setFocusState] = useState<{
     index: number;
     position: "start" | "end";
@@ -94,6 +95,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
   // const [contentHeight, setContentHeight] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const loadedFromTemplateRef = useRef(false);
 
   // Configure MathLive fonts on mount (client-side only)
   useEffect(() => {
@@ -117,6 +119,9 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
       })
       .then((data) => {
         if (data.lines && Array.isArray(data.lines) && data.lines.length > 0) {
+          // Mark that we loaded from template (prevents localStorage from overwriting)
+          loadedFromTemplateRef.current = true;
+
           // Regenerate IDs to ensure uniqueness
           const newLines = data.lines.map((line: MathLine) => ({
             ...line,
@@ -135,9 +140,18 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
       });
   }, [templateSlug]);
 
+  // Clear template from URL after it's been loaded (separate effect to avoid timing issues)
+  useEffect(() => {
+    if (isLoaded && loadedFromTemplateRef.current && templateSlug) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("template");
+      window.history.replaceState({}, "", url.pathname);
+    }
+  }, [isLoaded, templateSlug]);
+
   // Load from localStorage on mount (skip if template or initialLines is provided)
   useEffect(() => {
-    if (templateSlug || initialLines || minimal) return; // Skip localStorage
+    if (templateSlug || initialLines || minimal || loadedFromTemplateRef.current) return; // Skip localStorage
 
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -321,15 +335,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
     // Collect all lines up to and including this one
     const relevantLines = lines.slice(0, upToIndex + 1);
 
-    // Clear any existing feedback on lines up to this point
-    const lineIdsToClear = relevantLines.map((l) => l.id);
-    setFeedbackMap((prev) => {
-      const next = new Map(prev);
-      for (const id of lineIdsToClear) {
-        next.delete(id);
-      }
-      return next;
-    });
+    // Don't clear feedback yet - we'll do smart cleanup after getting result
 
     // Separate into problem and user lines
     const problemLines = relevantLines
@@ -366,6 +372,15 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
         const next = new Map(prev);
 
         if (data.status === "ok") {
+          // Clear any "issue" feedback on lines up to the clicked line
+          // (the issue has been fixed)
+          for (let i = 0; i <= upToIndex; i++) {
+            const lineId = lines[i].id;
+            const existingFeedback = next.get(lineId);
+            if (existingFeedback?.status === "issue") {
+              next.delete(lineId);
+            }
+          }
           // Show "all valid" on the clicked line
           next.set(targetLine.id, data);
         } else if (data.status === "issue" && data.stepIndex) {
@@ -373,16 +388,14 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
           const errorLineId = userLines[data.stepIndex - 1]?.lineId;
 
           if (errorLineId) {
-            // Set detailed error on the problematic line
-            next.set(errorLineId, data);
-
             // Find the index of the error line in the full lines array
             const errorLineIndex = lines.findIndex(l => l.id === errorLineId);
 
-            // Sweep lines AFTER the error: remove any "ok" feedback
-            // (since validation after an error is meaningless)
+            // Clear any "ok" feedback from the error line onwards
+            // (since validation at/after an error is now invalid)
+            // But keep any "ok" feedback BEFORE the error
             if (errorLineIndex !== -1) {
-              for (let i = errorLineIndex + 1; i < lines.length; i++) {
+              for (let i = errorLineIndex; i < lines.length; i++) {
                 const lineId = lines[i].id;
                 const existingFeedback = next.get(lineId);
                 if (existingFeedback?.status === "ok") {
@@ -390,6 +403,9 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
                 }
               }
             }
+
+            // Set detailed error on the problematic line
+            next.set(errorLineId, data);
           }
 
           // If the error is on a different line than clicked, show "issue above" on clicked line
