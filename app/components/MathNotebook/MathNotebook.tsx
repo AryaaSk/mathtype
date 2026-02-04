@@ -23,6 +23,7 @@ import MathLineComponent from "./MathLine";
 import TextLine from "./TextLine";
 import HeaderLine from "./HeaderLine";
 import ImageLine from "./ImageLine";
+import BreakLine from "./BreakLine";
 // Canvas overlay hidden for now - can be re-enabled later
 // import type { CanvasData, DrawingStroke, DrawingTool } from "./types";
 // import CanvasOverlay from "./CanvasOverlay";
@@ -172,6 +173,16 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
             isProblem: typeof line.isProblem === "boolean" ? line.isProblem : false,
           }));
           setLines(migratedLines);
+
+          // Restore hints if present
+          if (data.hints && typeof data.hints === "object") {
+            setHintMap(new Map(Object.entries(data.hints)));
+          }
+
+          // Restore feedback if present
+          if (data.feedback && typeof data.feedback === "object") {
+            setFeedbackMap(new Map(Object.entries(data.feedback)));
+          }
         }
       } catch (e) {
         // Ignore invalid data
@@ -180,12 +191,17 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
     setIsLoaded(true);
   }, [templateSlug, initialLines, minimal]);
 
-  // Save to localStorage whenever lines change (after initial load, skip in minimal mode)
+  // Save to localStorage whenever lines, hints, or feedback change (after initial load, skip in minimal mode)
   useEffect(() => {
     if (isLoaded && !minimal) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ lines }));
+      const data = {
+        lines,
+        hints: Object.fromEntries(hintMap),
+        feedback: Object.fromEntries(feedbackMap),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
-  }, [lines, isLoaded, minimal]);
+  }, [lines, hintMap, feedbackMap, isLoaded, minimal]);
 
   // Update line content
   const handleChange = useCallback((index: number, content: string) => {
@@ -234,8 +250,8 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
   // Create a new line below current (Enter)
   const handleEnterPress = useCallback((index: number) => {
     const currentMode = lines[index]?.mode || "math";
-    // Header and image lines should create text lines
-    const newMode = (currentMode === "header" || currentMode === "image") ? "text" : currentMode;
+    // Header, image, and break lines should create text lines
+    const newMode = (currentMode === "header" || currentMode === "image" || currentMode === "break") ? "text" : currentMode;
     const newLine: MathLine = {
       id: generateId(),
       content: "",
@@ -315,6 +331,64 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
     setFocusState({ index: Math.max(0, index - 1), position: "end" });
   }, [lines.length]);
 
+  // Find section boundaries (between breaks) for a given line index
+  const getSectionBounds = useCallback((lineIndex: number) => {
+    let start = 0;
+    let end = lines.length;
+
+    // Find the most recent break before this line
+    for (let i = lineIndex; i >= 0; i--) {
+      if (lines[i].mode === "break") {
+        start = i + 1;
+        break;
+      }
+    }
+
+    // Find the next break after this line
+    for (let i = lineIndex + 1; i < lines.length; i++) {
+      if (lines[i].mode === "break") {
+        end = i;
+        break;
+      }
+    }
+
+    return { start, end };
+  }, [lines]);
+
+  // Get lines within a section, split into problem and user lines
+  const getSectionLines = useCallback((upToIndex: number) => {
+    const { start, end } = getSectionBounds(upToIndex);
+    const relevantLines = lines.slice(start, upToIndex + 1);
+
+    const problemLines = relevantLines
+      .filter((l) => l.isProblem)
+      .map((l) => ({ mode: l.mode, content: l.content }));
+
+    const userLines = relevantLines
+      .filter((l) => !l.isProblem && l.mode !== "header" && l.mode !== "break")
+      .map((l) => ({ mode: l.mode, content: l.content, lineId: l.id }));
+
+    // Collect hints for user lines in this section
+    const hints: Record<string, string> = {};
+    for (const line of relevantLines) {
+      const hint = hintMap.get(line.id);
+      if (hint) {
+        hints[line.id] = hint;
+      }
+    }
+
+    // Collect feedback for user lines in this section
+    const feedback: Record<string, LLMFeedback> = {};
+    for (const line of relevantLines) {
+      const fb = feedbackMap.get(line.id);
+      if (fb) {
+        feedback[line.id] = fb;
+      }
+    }
+
+    return { problemLines, userLines, sectionStart: start, sectionEnd: end, hints, feedback };
+  }, [lines, getSectionBounds, hintMap, feedbackMap]);
+
   // Toggle isProblem status
   const handleToggleProblem = useCallback((index: number) => {
     setLines((prev) => {
@@ -340,20 +414,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
 
     setCheckingLineId(targetLine.id);
 
-    // Collect all lines up to and including this one
-    const relevantLines = lines.slice(0, upToIndex + 1);
-
-    // Don't clear feedback yet - we'll do smart cleanup after getting result
-
-    // Separate into problem and user lines
-    // Headers are excluded from user lines (they're just titles, not math work)
-    const problemLines = relevantLines
-      .filter((l) => l.isProblem)
-      .map((l) => ({ mode: l.mode, content: l.content }));
-
-    const userLines = relevantLines
-      .filter((l) => !l.isProblem && l.mode !== "header")
-      .map((l) => ({ mode: l.mode, content: l.content, lineId: l.id }));
+    const { problemLines, userLines, sectionStart, sectionEnd, hints } = getSectionLines(upToIndex);
 
     if (userLines.length === 0) {
       setCheckingLineId(null);
@@ -364,7 +425,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
       const response = await fetch("/api/check-reasoning", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ problemLines, userLines }),
+        body: JSON.stringify({ problemLines, userLines, hints }),
       });
 
       if (!response.ok) {
@@ -376,53 +437,28 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
 
       const data: LLMFeedback = await response.json();
 
-      // Store feedback on the appropriate line(s) with smart cleanup
+      // Clear all feedback in this section, then add new feedback
       setFeedbackMap((prev) => {
         const next = new Map(prev);
 
+        // Clear all feedback within this section
+        for (let i = sectionStart; i < sectionEnd; i++) {
+          next.delete(lines[i].id);
+        }
+
         if (data.status === "ok") {
-          // Clear any "issue" feedback on lines up to the clicked line
-          // (the issue has been fixed)
-          for (let i = 0; i <= upToIndex; i++) {
-            const lineId = lines[i].id;
-            const existingFeedback = next.get(lineId);
-            if (existingFeedback?.status === "issue") {
-              next.delete(lineId);
-            }
-          }
           // Show "all valid" on the clicked line
           next.set(targetLine.id, data);
-        } else if (data.status === "issue" && data.stepIndex) {
-          // Find the error line
-          const errorLineId = userLines[data.stepIndex - 1]?.lineId;
-
-          if (errorLineId) {
-            // Find the index of the error line in the full lines array
-            const errorLineIndex = lines.findIndex(l => l.id === errorLineId);
-
-            // Clear any "ok" feedback from the error line onwards
-            // (since validation at/after an error is now invalid)
-            // But keep any "ok" feedback BEFORE the error
-            if (errorLineIndex !== -1) {
-              for (let i = errorLineIndex; i < lines.length; i++) {
-                const lineId = lines[i].id;
-                const existingFeedback = next.get(lineId);
-                if (existingFeedback?.status === "ok") {
-                  next.delete(lineId);
-                }
-              }
+        } else if (data.status === "issue" && data.issues && data.issues.length > 0) {
+          // Set feedback on each problematic line
+          for (const issue of data.issues) {
+            const errorLineId = userLines[issue.stepIndex - 1]?.lineId;
+            if (errorLineId) {
+              next.set(errorLineId, {
+                status: "issue",
+                latex: issue.latex
+              });
             }
-
-            // Set detailed error on the problematic line
-            next.set(errorLineId, data);
-          }
-
-          // If the error is on a different line than clicked, show "issue above" on clicked line
-          if (errorLineId && errorLineId !== targetLine.id) {
-            next.set(targetLine.id, {
-              status: "issue",
-              latex: "\\text{Issue found above ↑}"
-            });
           }
         }
 
@@ -433,7 +469,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
     } finally {
       setCheckingLineId(null);
     }
-  }, [lines]);
+  }, [lines, getSectionLines]);
 
   // Dismiss feedback for a line
   const handleDismissFeedback = useCallback((lineId: string) => {
@@ -451,24 +487,13 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
 
     setLoadingHintLineId(targetLine.id);
 
-    // Collect all lines up to and including this one
-    const relevantLines = lines.slice(0, atIndex + 1);
-
-    // Separate into problem and user lines
-    // Headers are excluded from user lines (they're just titles, not math work)
-    const problemLines = relevantLines
-      .filter((l) => l.isProblem)
-      .map((l) => ({ mode: l.mode, content: l.content }));
-
-    const userLines = relevantLines
-      .filter((l) => !l.isProblem && l.mode !== "header")
-      .map((l) => ({ mode: l.mode, content: l.content, lineId: l.id }));
+    const { problemLines, userLines, hints, feedback } = getSectionLines(atIndex);
 
     try {
       const response = await fetch("/api/hint", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ problemLines, userLines }),
+        body: JSON.stringify({ problemLines, userLines, hints, feedback }),
       });
 
       if (!response.ok) {
@@ -491,7 +516,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
     } finally {
       setLoadingHintLineId(null);
     }
-  }, [lines]);
+  }, [lines, getSectionLines]);
 
   // Dismiss hint for a line
   const handleDismissHint = useCallback((lineId: string) => {
@@ -525,8 +550,13 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
 
   // Export notebook as JSON
   const exportJSON = useCallback((): string => {
-    return JSON.stringify({ lines }, null, 2);
-  }, [lines]);
+    const data = {
+      lines,
+      hints: Object.fromEntries(hintMap),
+      feedback: Object.fromEntries(feedbackMap),
+    };
+    return JSON.stringify(data, null, 2);
+  }, [lines, hintMap, feedbackMap]);
 
   // Import notebook from JSON with validation
   const importJSON = useCallback((json: string) => {
@@ -543,7 +573,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
       }
 
       // Validate each line
-      const validModes: LineMode[] = ["math", "text", "header", "image"];
+      const validModes: LineMode[] = ["math", "text", "header", "image", "break"];
       const validatedLines: MathLine[] = [];
 
       for (let i = 0; i < data.lines.length; i++) {
@@ -573,11 +603,26 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
 
       // All valid - update state
       setLines(validatedLines);
-      setFeedbackMap(new Map()); // Clear feedback on import
+
+      // Restore hints if present
+      if (data.hints && typeof data.hints === "object") {
+        setHintMap(new Map(Object.entries(data.hints)));
+      } else {
+        setHintMap(new Map());
+      }
+
+      // Restore feedback if present
+      if (data.feedback && typeof data.feedback === "object") {
+        setFeedbackMap(new Map(Object.entries(data.feedback)));
+      } else {
+        setFeedbackMap(new Map());
+      }
     } catch (e) {
       console.error("Import failed:", e);
       alert("Invalid notebook file. Starting with empty notebook.");
       setLines([{ id: generateId(), content: "", mode: "text", isProblem: false }]);
+      setHintMap(new Map());
+      setFeedbackMap(new Map());
     }
   }, []);
 
@@ -725,6 +770,8 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
       lineComponent = <HeaderLine {...commonProps} />;
     } else if (line.mode === "image") {
       lineComponent = <ImageLine {...commonProps} />;
+    } else if (line.mode === "break") {
+      lineComponent = <BreakLine {...commonProps} />;
     } else {
       lineComponent = <MathLineComponent {...commonProps} />;
     }
@@ -736,7 +783,7 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
           <div className={`feedback-display ${feedback.status === "ok" ? "feedback-ok" : "feedback-issue"}`}>
             <span className="feedback-icon">{feedback.status === "ok" ? "✓" : "✗"}</span>
             <div className="feedback-content">
-              <math-field read-only>{feedback.latex || (feedback.status === "ok" ? "\\text{All steps valid.}" : "\\text{Error in reasoning.}")}</math-field>
+              <math-field read-only>{(feedback.latex || (feedback.status === "ok" ? "\\text{All steps valid.}" : "\\text{Error in reasoning.}")).replace(/\\\\/g, " ")}</math-field>
             </div>
             <button className="feedback-dismiss" onClick={() => handleDismissFeedback(line.id)}>×</button>
           </div>
@@ -755,8 +802,8 @@ export default function MathNotebook({ templateSlug, initialLines, minimal = fal
             color: "#374151",
           }}>
             <span style={{ fontSize: 14, flexShrink: 0, marginTop: 2 }}>💡</span>
-            <div style={{ flex: 1, minWidth: 0, overflow: "auto" }}>
-              <math-field read-only style={{ fontSize: 15 }}>{hint}</math-field>
+            <div style={{ flex: 1, minWidth: 0, overflowX: "auto", overflowY: "hidden" }}>
+              <math-field read-only style={{ fontSize: 15 }}>{hint.replace(/\\\\/g, " ")}</math-field>
             </div>
             <button
               onClick={() => handleDismissHint(line.id)}

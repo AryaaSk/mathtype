@@ -85,7 +85,11 @@ export default function MathLine({
         /* Remove blue highlight on text in math mode */
         .ML__text {
           background: transparent !important;
-          color: inherit !important;
+          color: #333 !important;
+        }
+        /* Ensure math content is always visible */
+        .ML__mathlive {
+          color: #333 !important;
         }
       `;
       mf.shadowRoot.appendChild(style);

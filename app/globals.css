@@ -14,6 +14,8 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
   background: #fafaf8;
 }
 
@@ -239,6 +241,23 @@ math-field .ML__caret {
 
 .image-line {
   min-height: 60px;
+}
+
+.break-marker {
+  color: #999;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.break-line {
+  min-height: 20px;
+  padding: 0 48px 0 24px;
+  border-bottom: none;
+}
+
+.break-line:focus {
+  outline: none;
 }
 
 .text-line .title-input,

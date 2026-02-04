@@ -16,31 +16,40 @@ interface UserLine {
 interface RequestBody {
   problemLines: ProblemLine[];
   userLines: UserLine[];
+  hints?: Record<string, string>;
 }
 
-const SYSTEM_PROMPT = `You are a mathematics tutor evaluating a student's reasoning. You will receive:
+const SYSTEM_PROMPT = `You are a careful mathematics tutor evaluating a student's reasoning.
 
-1. **PROBLEM CONTEXT** - Given information that should be treated as correct (axioms, problem statements, given equations)
-2. **USER STEPS** - The student's work to evaluate, numbered starting from 1
+IMPORTANT: Read ALL steps first to understand the full context before evaluating any individual step. Later steps may clarify, define, or justify earlier statements. An informal statement followed by a formal definition is valid.
 
-Your task:
-- Verify each user step logically follows from the problem context AND all previous user steps
-- Identify the FIRST step that contains a CLEAR mathematical error
-- Only flag errors you are CERTAIN about - algebraic mistakes, sign errors, wrong formulas, invalid operations
-- Do NOT flag numerical approximations or rounding as errors unless clearly wrong by orders of magnitude
-- When in doubt, assume the student is correct
+CRITICAL RULES:
+1. READ EVERYTHING FIRST - understand the student's full argument before judging
+2. Be EXTREMELY conservative - only flag errors you are 100% certain about
+3. If a statement is clarified or justified by a later step, it is NOT an error
+4. If a statement is arguably correct under some interpretation, mark it as OK
+5. NEVER contradict yourself in feedback
+6. The student may be using different but equivalent definitions
+7. When in doubt, assume the student is correct
+
+You will receive:
+- **PROBLEM CONTEXT** - Given information (treat as correct)
+- **USER STEPS** - Student's work to evaluate AS A WHOLE
+
+Evaluation process:
+1. Read all steps to understand the complete argument
+2. For each step, ask: "Given everything else the student wrote, is this wrong?"
+3. Only flag a step if it's mathematically incorrect even considering the full context
 
 Response format (JSON only):
-- If all steps are correct OR you are unsure: {"status": "ok", "latex": "\\\\text{All steps are valid.}"}
-- If there's a DEFINITE error: {"status": "issue", "stepIndex": N, "latex": "LaTeX feedback"}
+- If all steps are correct OR you have ANY doubt: {"status": "ok"}
+- If there are DEFINITE errors: {"status": "issue", "issues": [{"stepIndex": N, "latex": "feedback"}, ...]}
 
-Where N is the 1-indexed position in the USER STEPS (not counting problem lines).
+N is the 1-indexed step number.
 
-IMPORTANT: The "latex" field must contain valid LaTeX that will be rendered in a math display. Use \\text{} for prose and inline math symbols. Keep it concise (1-2 sentences). Examples:
-- "\\\\text{The derivative of } \\\\sin(x) \\\\text{ is } \\\\cos(x)\\\\text{, not } -\\\\cos(x)\\\\text{.}"
-- "\\\\text{Sign error: } \\\\arctan(-x) = -\\\\arctan(x)\\\\text{.}"
+The "latex" field must be valid LaTeX using \\text{} for prose. Keep feedback to ONE clear sentence.
 
-Focus on what went wrong. Do not provide the full solution. Be conservative - only report clear errors.`;
+Do NOT explain the correct answer - just identify the error briefly.`;
 
 function formatLineContent(line: ProblemLine | UserLine): string {
   if (line.mode === "math") {
@@ -54,7 +63,8 @@ function formatLineContent(line: ProblemLine | UserLine): string {
 
 function buildUserMessage(
   problemLines: ProblemLine[],
-  userLines: UserLine[]
+  userLines: UserLine[],
+  hints?: Record<string, string>
 ): OpenAI.Chat.ChatCompletionMessageParam[] {
   const parts: OpenAI.Chat.ChatCompletionContentPart[] = [];
 
@@ -83,10 +93,12 @@ function buildUserMessage(
     }
   }
 
-  // User steps section
+  // User steps section - with hints inline after each step
   let userText = "## USER STEPS (To Evaluate)\n\n";
   for (let i = 0; i < userLines.length; i++) {
     const line = userLines[i];
+    const hint = hints?.[line.lineId];
+
     if (line.mode === "image" && line.content.startsWith("data:image")) {
       // Add text so far
       if (userText.trim()) {
@@ -99,9 +111,17 @@ function buildUserMessage(
         type: "image_url",
         image_url: { url: line.content, detail: "high" },
       });
-      parts.push({ type: "text", text: "\n" });
+      // Add hint after image if present
+      if (hint) {
+        parts.push({ type: "text", text: `\n  [Hint given: $${hint}$]\n` });
+      } else {
+        parts.push({ type: "text", text: "\n" });
+      }
     } else {
       userText += `Step ${i + 1}: ${formatLineContent(line)}\n`;
+      if (hint) {
+        userText += `  [Hint given: $${hint}$]\n`;
+      }
     }
   }
   if (userText.trim()) {
@@ -155,7 +175,7 @@ export async function POST(request: NextRequest) {
   const openai = new OpenAI({ apiKey });
 
   try {
-    const userMessages = buildUserMessage(body.problemLines, body.userLines);
+    const userMessages = buildUserMessage(body.problemLines, body.userLines, body.hints);
 
     const response = await openai.chat.completions.create({
       model: "gpt-5.2",
@@ -193,6 +213,14 @@ export async function POST(request: NextRequest) {
         { error: "Invalid response structure from OpenAI" },
         { status: 500 }
       );
+    }
+
+    // Normalize response - ensure issues array exists for "issue" status
+    if (parsed.status === "issue") {
+      // Handle old format (single stepIndex/latex) or new format (issues array)
+      if (!parsed.issues && parsed.stepIndex) {
+        parsed.issues = [{ stepIndex: parsed.stepIndex, latex: parsed.latex }];
+      }
     }
 
     return NextResponse.json(parsed);

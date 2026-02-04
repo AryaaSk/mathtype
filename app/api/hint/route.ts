@@ -13,9 +13,17 @@ interface UserLine {
   lineId: string;
 }
 
+interface LLMFeedback {
+  status: "ok" | "issue";
+  stepIndex?: number;
+  latex?: string;
+}
+
 interface RequestBody {
   problemLines: ProblemLine[];
   userLines: UserLine[];
+  hints?: Record<string, string>;
+  feedback?: Record<string, LLMFeedback>;
 }
 
 const SYSTEM_PROMPT = `You are a supportive mathematics tutor providing gentle hints. You will receive:
@@ -60,7 +68,9 @@ function formatLineContent(line: ProblemLine | UserLine): string {
 
 function buildUserMessage(
   problemLines: ProblemLine[],
-  userLines: UserLine[]
+  userLines: UserLine[],
+  hints?: Record<string, string>,
+  feedback?: Record<string, LLMFeedback>
 ): OpenAI.Chat.ChatCompletionMessageParam[] {
   const parts: OpenAI.Chat.ChatCompletionContentPart[] = [];
 
@@ -89,11 +99,14 @@ function buildUserMessage(
     }
   }
 
-  // User steps section
+  // User steps section - with hints and feedback inline
   if (userLines.length > 0) {
     let userText = "## STUDENT'S WORK SO FAR\n\n";
     for (let i = 0; i < userLines.length; i++) {
       const line = userLines[i];
+      const hint = hints?.[line.lineId];
+      const fb = feedback?.[line.lineId];
+
       if (line.mode === "image" && line.content.startsWith("data:image")) {
         // Add text so far
         if (userText.trim()) {
@@ -106,9 +119,23 @@ function buildUserMessage(
           type: "image_url",
           image_url: { url: line.content, detail: "high" },
         });
-        parts.push({ type: "text", text: "\n" });
+        // Add hint and feedback after image if present
+        let suffix = "\n";
+        if (hint) {
+          suffix += `  [Previous hint given: $${hint}$]\n`;
+        }
+        if (fb) {
+          suffix += `  [Feedback: ${fb.status === "ok" ? "Correct" : `Issue - ${fb.latex || "error found"}`}]\n`;
+        }
+        parts.push({ type: "text", text: suffix });
       } else {
         userText += `Step ${i + 1}: ${formatLineContent(line)}\n`;
+        if (hint) {
+          userText += `  [Previous hint given: $${hint}$]\n`;
+        }
+        if (fb) {
+          userText += `  [Feedback: ${fb.status === "ok" ? "Correct" : `Issue - ${fb.latex || "error found"}`}]\n`;
+        }
       }
     }
     if (userText.trim()) {
@@ -163,7 +190,7 @@ export async function POST(request: NextRequest) {
   const openai = new OpenAI({ apiKey });
 
   try {
-    const userMessages = buildUserMessage(body.problemLines, body.userLines);
+    const userMessages = buildUserMessage(body.problemLines, body.userLines, body.hints, body.feedback);
 
     const response = await openai.chat.completions.create({
       model: "gpt-5.2",

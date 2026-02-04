@@ -7,8 +7,8 @@
 
 import type { MathfieldElement } from "mathlive";
 
-/** Line mode - math (MathLive), text (plain input), header (title), or image (base64) */
-export type LineMode = "math" | "text" | "header" | "image";
+/** Line mode - math (MathLive), text (plain input), header (title), image (base64), or break (section divider) */
+export type LineMode = "math" | "text" | "header" | "image" | "break";
 
 /**
  * Represents a single line in the math notebook.
@@ -26,14 +26,24 @@ export interface MathLine {
 }
 
 /**
+ * Single issue found in reasoning.
+ */
+export interface LLMIssue {
+  /** 1-indexed position of the problematic user step */
+  stepIndex: number;
+  /** LaTeX formatted feedback message */
+  latex: string;
+}
+
+/**
  * LLM feedback response structure.
  */
 export interface LLMFeedback {
-  /** "ok" if all steps valid, "issue" if a problem was found */
+  /** "ok" if all steps valid, "issue" if problems were found */
   status: "ok" | "issue";
-  /** 1-indexed position of the problematic user step (only if status === "issue") */
-  stepIndex?: number;
-  /** LaTeX formatted feedback message */
+  /** Array of issues found (only if status === "issue") */
+  issues?: LLMIssue[];
+  /** LaTeX formatted feedback message (for ok status or single line display) */
   latex?: string;
 }
 

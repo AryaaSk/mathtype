@@ -26,7 +26,7 @@ function NotebookContent() {
 
 export default function NotebookPage() {
   return (
-    <main>
+    <main style={{ height: "100vh", maxHeight: "100vh", overflow: "hidden", position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}>
       <Suspense
         fallback={
           <div className="min-h-screen bg-[#fafaf8] flex items-center justify-center">

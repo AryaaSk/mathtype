@@ -80,10 +80,10 @@ export default function ImageLine({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Tab - switch to math mode (only if no image loaded)
+    // Tab - switch to break mode (only if no image loaded)
     if (e.key === "Tab" && !line.content) {
       e.preventDefault();
-      onModeChange(index, "math");
+      onModeChange(index, "break");
       return;
     }
 
@@ -105,7 +105,7 @@ export default function ImageLine({
   const handleMarkerClick = () => {
     // Only allow mode switch if no image loaded
     if (!line.content) {
-      onModeChange(index, "math");
+      onModeChange(index, "break");
     }
   };
 
